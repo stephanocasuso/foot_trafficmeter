@@ -4,6 +4,8 @@ from datetime import datetime
 import board
 import busio
 import adafruit_vl53l0x
+import os
+from zoneinfo import ZoneInfo
 
 """
     Sensor Logic
@@ -53,18 +55,23 @@ person_leaves = 0
 """
 def get_log_filename():
     # returns a daily log file
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d")
     return f"{today}_foot_traffic_log.csv"
 
 def log_event(foot_traffic, person_leaves):
     # appends a new entry to the daily log
     filename = get_log_filename()
-    current_date = datetime.now().strftime("%Y-%m-%d")
-    current_time = datetime.now().strftime("%H:%M:%S")
+    NY_TZ = ZoneInfo("America/New_York") # we want to specify eastern time for data logging
+    current_datetime = datetime.now(NY_TZ)  # This is the unified datetime in Eastern Time.
+    current_date = current_datetime.strftime("%Y-%m-%d")
+    current_time = current_datetime.strftime("%H:%M:%S")
     # 'a': open for writing, appending to the end of file it it exists
     # newline='': no translation takes place when writing output to stream
     with open(filename, 'a', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
+        # If the file doesn't exist, write the header row first
+        if not os.path.isfile(filename):
+            csv_writer.writerow(['date', 'time', 'foot_traffic', 'person_leaves'])
         csv_writer.writerow([current_date, current_time, foot_traffic, person_leaves])
     print(f"Logged: {current_date} {current_time} | Foot Traffic: {foot_traffic} | Exits: {person_leaves}")
 
