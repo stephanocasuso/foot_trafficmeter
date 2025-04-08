@@ -173,7 +173,7 @@ def main():
 
                 # Timeout: if tracking lasts too long (e.g., more than 5 seconds) without returning to baseline,
                 # assume the event is over and reset.
-                if (current_time - readings[0][0]) > 5:
+                if readings and (current_time - readings[0][0]) > 5:
                     print("Tracking timeout. Resetting state.")
                     readings = []
                     state = "idle"
