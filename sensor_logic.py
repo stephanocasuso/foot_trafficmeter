@@ -113,7 +113,7 @@ def evaluate_movement(readings):
     departure_count = 0
     
     # Evaluate consecutive differences.
-    for i in range(1, len(distances)):
+    for i in range(1, len(distances)-1):
         delta = distances[i] - distances[i - 1] # difference between logged distance and the one previously logged
         if delta < 0: # if logged distance is less than the previous distance, then it's approaching
             approach_count += 1
