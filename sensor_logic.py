@@ -36,10 +36,10 @@ will increase the "person_leaves" count by 1.
 
 # Baseline distance (with no one in front of the sensor), in milimeters.
 # Sensor reads 805mm - 830mm with no obstructions, so we'll go with 800mm
-baseline_distance = 800
+baseline_distance = 1200
 
 # Distance below which an object is considered “detected”
-obstruction_size = 40 # distance in mm between the baseline and obstruction
+obstruction_size = 200 # distance in mm between the baseline and obstruction
 trigger_distance = baseline_distance - obstruction_size
 
 # Distance near baseline to indicate that the object left the sensor’s field
