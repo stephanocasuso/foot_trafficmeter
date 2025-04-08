@@ -69,8 +69,8 @@ def log_event(foot_traffic, person_leaves):
     # newline='': no translation takes place when writing output to stream
     with open(filename, 'a', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
-        # If the file doesn't exist, write the header row first
-        if not os.path.isfile(filename):
+        # If the file is empty, write the header row first
+        if os.path.getsize(filename) == 0:
             csv_writer.writerow(['date', 'time', 'foot_traffic', 'person_leaves'])
         csv_writer.writerow([current_date, current_time, foot_traffic, person_leaves])
     print(f"Logged: {current_date} {current_time} | Foot Traffic: {foot_traffic} | Exits: {person_leaves}")
