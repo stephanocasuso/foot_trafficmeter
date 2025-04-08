@@ -101,7 +101,7 @@ def evaluate_movement(readings):
     """
 
     # Extract only the distance values from the timestamped readings.
-    distances = [reading[1] for reading in readings]
+    distances = [round(reading[1]/10) for reading in readings] # dividing by 10 and rounding to turn mm into cm
     approach_count = 0
     departure_count = 0
     
@@ -156,9 +156,8 @@ def main():
                 # TODO: 
                 # 1. if the distance is far and suddenly just to being in front of the sensor we can 
                 #   assume a second person has walked in front of the sensor
-                # 2. get rid of reset_distance altogether; a properly calibrated baseline_distance should
+                # 2. get rid of reset_distance altogether; a properly calibrated baseline_distance
                 #   should be enough
-                # 3. keep track of the last distance measured before tracking begins and add it to the readings
 
                 # When the reading returns to near-baseline, assume the object has moved out of view
                 if current_distance > reset_distance:
