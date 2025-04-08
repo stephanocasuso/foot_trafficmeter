@@ -71,7 +71,7 @@ def log_event(foot_traffic, person_leaves):
         csv_writer = csv.writer(csvfile)
         # If the file is empty, write the header row first
         if os.path.getsize(filename) == 0:
-            csv_writer.writerow(['date', 'time', 'foot_traffic', 'person_leaves'])
+            csv_writer.writerow(['date', 'time', 'entry_count', 'exit_count'])
         csv_writer.writerow([current_date, current_time, foot_traffic, person_leaves])
     print(f"Logged: {current_date} {current_time} | Foot Traffic: {foot_traffic} | Exits: {person_leaves}")
 
