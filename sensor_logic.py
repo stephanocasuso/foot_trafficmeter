@@ -37,7 +37,7 @@ will increase the "person_leaves" count by 1.
 baseline_distance = 800
 
 # Distance below which an object is considered “detected”
-obstruction_size = 150 # distance in mm between the baseline and obstruction
+obstruction_size = 40 # distance in mm between the baseline and obstruction
 trigger_distance = baseline_distance - obstruction_size
 
 # Distance near baseline to indicate that the object left the sensor’s field
@@ -134,7 +134,7 @@ def main():
     state = "idle"
     readings = []  # This list will hold (timestamp, distance) tuples during an event
 
-    poll_interval = 0.05  # Time between sensor polls (in seconds)
+    poll_interval = 0.01  # Time between sensor polls (in seconds)
 
     print("Starting sensor monitoring. Press cmd+z to exit...")
     try:
