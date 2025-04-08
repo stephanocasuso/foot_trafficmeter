@@ -55,16 +55,27 @@ person_leaves = 0
 """
 def get_log_filename():
     # returns a daily log file
-    today = datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d")
-    return f"{today}_foot_traffic_log.csv"
+    today = datetime.now(ZoneInfo('America/New_York')).strftime('%Y-%m-%d')
+    return f'{today}_foot_traffic_log.csv'
 
-def log_event(foot_traffic, person_leaves):
-    # appends a new entry to the daily log
+def log_event(event):
     filename = get_log_filename()
-    NY_TZ = ZoneInfo("America/New_York") # we want to specify eastern time for data logging
-    current_datetime = datetime.now(NY_TZ)  # This is the unified datetime in Eastern Time.
-    current_date = current_datetime.strftime("%Y-%m-%d")
-    current_time = current_datetime.strftime("%H:%M:%S")
+    ny_tz = ZoneInfo('America/New_York')  # we want to specify eastern time for data logging
+    current_datetime = datetime.now(ny_tz)  # This is the unified datetime in Eastern Time.
+    current_date = current_datetime.strftime('%Y-%m-%d')
+    current_time = current_datetime.strftime('%H:%M:%S')
+    
+    # appends a new entry to the daily log depending on the event type
+    # append (1,0) if entry; (0,1) if exit
+    if event == 'entry':
+        entry_value, exit_value = 1, 0
+    elif event == 'exit':
+        entry_value, exit_value = 0, 1
+    else:
+        # Unrecognized event type; do nothing
+        print('Unrecognized event type:', event)
+        return
+
     # 'a': open for writing, appending to the end of file it it exists
     # newline='': no translation takes place when writing output to stream
     with open(filename, 'a', newline='') as csvfile:
@@ -72,8 +83,8 @@ def log_event(foot_traffic, person_leaves):
         # If the file is empty, write the header row first
         if os.path.getsize(filename) == 0:
             csv_writer.writerow(['date', 'time', 'entry_count', 'exit_count'])
-        csv_writer.writerow([current_date, current_time, foot_traffic, person_leaves])
-    print(f"Logged: {current_date} {current_time} | Foot Traffic: {foot_traffic} | Exits: {person_leaves}")
+        csv_writer.writerow([current_date, current_time, entry_value, exit_value])
+    print(f'Logged: {current_date} {current_time} | Event: {event}')
 
 
 """
@@ -87,7 +98,7 @@ sensor = adafruit_vl53l0x.VL53L0X(i2c)
 
 def read_distance():
     distance = sensor.range
-    print("Distance: {} mm".format(distance))
+    print(f'Distance: {distance} mm')
     return distance
 
 
@@ -113,6 +124,7 @@ def evaluate_movement(readings):
     departure_count = 0
     
     # Evaluate consecutive differences.
+    # dont count second to last reading as it's the reset_distance
     for i in range(1, len(distances)-1):
         delta = distances[i] - distances[i - 1] # difference between logged distance and the one previously logged
         if delta < 0: # if logged distance is less than the previous distance, then it's approaching
@@ -124,9 +136,11 @@ def evaluate_movement(readings):
 
     # Determine whether entry or exit based on movement trend
     if approach_count > departure_count:
-        return "entry"
+        return 'entry'
     elif departure_count > approach_count:
-        return "exit"
+        return 'exit'
+    elif approach_count == departure_count:
+        return 'tie'
     else:
         return None
 
@@ -135,28 +149,25 @@ def evaluate_movement(readings):
     Main loop
 """
 def main():
-    global foot_traffic, person_leaves
-
     # The sensor state can be either "idle" (waiting for detection) or "tracking" (collecting data)
-    state = "idle"
+    state = 'idle'
     readings = []  # This list will hold (timestamp, distance) tuples during an event
 
     poll_interval = 0.01  # Time between sensor polls (in seconds)
 
-    print("Starting sensor monitoring. Press cmd+z to exit...")
+    print('Starting sensor monitoring. Press cmd+z to exit...')
     try:
         while True:
             current_distance = read_distance()
             current_time = time.time()
 
-            if state == "idle":
+            if state == 'idle':
                 # Begin tracking if an object is detected
                 if current_distance < trigger_distance:
-                    state = "tracking"
+                    state = 'tracking'
                     readings = [(current_time, current_distance)]
-                    print("Object detected. Tracking started...")
-            
-            elif state == "tracking":
+                    print('Object detected. Tracking started...')
+            elif state == 'tracking':
                 # Keep appending readings while tracking
                 readings.append((current_time, current_distance))
                 
@@ -169,28 +180,31 @@ def main():
                 # When the reading returns to near-baseline, assume the object has moved out of view
                 if current_distance > reset_distance:
                     direction = evaluate_movement(readings)
-                    if direction == "entry":
-                        foot_traffic += 1
-                        print("Entry detected!")
+                    if direction == 'entry':
+                        print('Entry detected!')
+                        log_event('entry')
+                    elif direction == 'exit':
+                        print('Exit detected!')
+                        log_event('exit')
+                    elif direction == 'tie':
+                        print('Tie event detected. No event logged.')
                     else:
-                        person_leaves += 1
-                        print("Exit detected!")
+                        print('Movement undetermined.')
                     
-                    log_event(foot_traffic, person_leaves)
                     # Reset state for the next event
                     readings = []
-                    state = "idle"
+                    state = 'idle'
 
                 # Timeout: if tracking lasts too long (e.g., more than 5 seconds) without returning to baseline,
                 # assume the event is over and reset.
                 if readings and (current_time - readings[0][0]) > 5:
-                    print("Tracking timeout. Resetting state.")
+                    print('Tracking timeout. Resetting state.')
                     readings = []
-                    state = "idle"
+                    state = 'idle'
 
             time.sleep(poll_interval)
     except KeyboardInterrupt:
-        print("\nSensor monitoring stopped.")
+        print('\nSensor monitoring stopped.')
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
