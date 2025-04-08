@@ -99,6 +99,7 @@ def evaluate_movement(readings):
     - More sophisticated algorithms should use the rate of change and additional time-based slopes.
 
     """
+
     # Extract only the distance values from the timestamped readings.
     distances = [reading[1] for reading in readings]
     approach_count = 0
@@ -111,6 +112,8 @@ def evaluate_movement(readings):
             approach_count += 1
         elif delta > 0: # if logged distance is more than the previous distance, then it's retreating
             departure_count += 1
+        print(f'{distances[i]} - {distances[i - 1]} = {delta}. ')
+        print(f'approach_count = {approach_count} | departure_count = {departure_count}')
 
     # Determine whether entry or exit based on movement trend
     if approach_count > departure_count:
@@ -131,7 +134,7 @@ def main():
     state = "idle"
     readings = []  # This list will hold (timestamp, distance) tuples during an event
 
-    poll_interval = 0.1  # Time between sensor polls (in seconds)
+    poll_interval = 0.05  # Time between sensor polls (in seconds)
 
     print("Starting sensor monitoring. Press cmd+z to exit...")
     try:
@@ -155,6 +158,7 @@ def main():
                 #   assume a second person has walked in front of the sensor
                 # 2. get rid of reset_distance altogether; a properly calibrated baseline_distance should
                 #   should be enough
+                # 3. keep track of the last distance measured before tracking begins and add it to the readings
 
                 # When the reading returns to near-baseline, assume the object has moved out of view
                 if current_distance > reset_distance:
