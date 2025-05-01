@@ -72,7 +72,7 @@ def prompt_config_values(cfg, key, cast_fn):
         Prompting Users to Configure Parameters (if they'd like)
     """
     default = cfg[key]
-    user_reply = input(f'Current {key} value is {default}. Would you like to change this? (y/n)').strip().lower()
+    user_reply = input(f'Current {key} value is {default}. Would you like to change this? (y/n)\n').strip().lower()
     while user_reply not in ['y', 'yes', 'n', 'no']:
         user_reply = input('Please enter y or n. Press Ctrl+C to exit.').strip().lower()
     if user_reply in ['y', 'yes']:
@@ -86,8 +86,8 @@ def real_time_config(cfg):
         Configuring Non-Calibration Settings Through prompt_config_values
     """
     # Settings below don't require calibration
-    prompt_config_values(cfg, 'entry_sensor_address', int)
-    prompt_config_values(cfg, 'exit_sensor_address', int)
+    prompt_config_values(cfg, 'entry_sensor_address', str)
+    prompt_config_values(cfg, 'exit_sensor_address', str)
     prompt_config_values(cfg, 'poll_interval', float)
     prompt_config_values(cfg, 'event_timeout', float)
     prompt_config_values(cfg, 'reset_time', float)
