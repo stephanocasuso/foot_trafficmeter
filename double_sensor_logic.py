@@ -132,6 +132,12 @@ def set_tdt_values(entry_sensor, exit_sensor):
     except KeyboardInterrupt:
         print('Calibration interrupted by user.')
     
+    print('Now the max_tdt value will be calibrated. Please place an obstruction at the edge of the entry pathway furthest from the sensors (aka maximum traffic distance threshold).')
+    while True:
+        ready = input('Press Enter to start.')
+        if ready == '':
+            break
+    
     # Calibrating max TDT 
     start_time = datetime.now()
     stop_time = start_time + timedelta(seconds=3)
