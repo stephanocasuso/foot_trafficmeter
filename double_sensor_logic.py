@@ -79,7 +79,7 @@ def prompt_config_values(cfg, key, cast_fn):
         user_input = input(f'Enter new value for {key}: ').strip()
         cfg[key] = cast_fn(user_input)
     elif user_reply in ['n', 'no']:
-        print('Keeping {default} value for {key}.')
+        print(f'Keeping {default} value for {key}.')
 
 def real_time_config(cfg):
     """
@@ -327,11 +327,11 @@ def main():
                 if (min_tdt <= entry_sensor_reading <= max_tdt):
                     state = 'maybe_entry'
                     state_start_time = current_time
-                    timeout_time = state_start_time + timedelta(seconds=event_timeout)
+                    timeout_time = datetime.now() + timedelta(seconds=event_timeout)
                 elif (min_tdt <= exit_sensor_reading <= max_tdt):
                     state = 'maybe_exit'
                     state_start_time = current_time
-                    timeout_time = state_start_time + timedelta(seconds=event_timeout)
+                    timeout_time = datetime.now() + timedelta(seconds=event_timeout)
 
             if state == 'maybe_entry':
                 while state == 'maybe_entry': 
