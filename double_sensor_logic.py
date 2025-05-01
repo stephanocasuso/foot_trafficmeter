@@ -287,6 +287,12 @@ def main():
     elif user_reply in ['n', 'no']:
         print('Sensor calibration skipped.')
 
+    # Load TDT and baseline values from config file
+    min_tdt = cfg['min_tdt']
+    max_tdt = cfg['max_tdt']
+    entry_sensor_baseline = cfg['entry_sensor_baseline']
+    exit_sensor_baseline = cfg['exit_sensor_baseline']
+    
     # Prepare daily log file
     ny_tz = ZoneInfo('America/New_York')  # we want to specify eastern time for data logging
     current_datetime = datetime.now(ny_tz)  # This is the unified datetime in Eastern Time.
