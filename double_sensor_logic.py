@@ -74,7 +74,7 @@ def prompt_config_values(cfg, key, cast_fn):
     default = cfg[key]
     user_reply = input(f'Current {key} value is {default}. Would you like to change this? (y/n)\n').strip().lower()
     while user_reply not in ['y', 'yes', 'n', 'no']:
-        user_reply = input('Please enter y or n. Press Ctrl+C to exit.').strip().lower()
+        user_reply = input('Please enter y or n. Press Ctrl+C to exit.\n').strip().lower()
     if user_reply in ['y', 'yes']:
         user_input = input(f'Enter new value for {key}: ').strip()
         cfg[key] = cast_fn(user_input)
@@ -235,19 +235,21 @@ def main():
     sh2.value = False
     time.sleep(0.1) # 100ms delay allows for pin firmware to catch up
 
-    # Initializing I2C Bus
-    i2c_bus = busio.I2C(board.SCL, board.SDA)
     
     # Boot up sensor 1, entry sensor, set to address specified
     sh1.value = True
     time.sleep(0.1)
-    entry_sensor = VL53L0X(i2c_bus, address=entry_sensor_address)
+    # Initializing I2C Bus
+    i2c_bus = busio.I2C(board.SCL, board.SDA)
+    entry_sensor = VL53L0X(i2c_bus)
+    entry_sensor.set_address(entry_sensor_address)
     print(f'Entry sensor now at address {entry_sensor_address}')
 
     # Boot up sensor 2, exit sensor, set to address specified
     sh2.value = True
     time.sleep(0.1)
-    exit_sensor = VL53L0X(i2c_bus, address=exit_sensor_address)
+    exit_sensor = VL53L0X(i2c_bus)
+    exit_sensor.set_address(exit_sensor_address)
     print(f'Exit sensor now at address {exit_sensor_address}')
 
     # Optional sensor calibration for baselines and TDT values
@@ -260,9 +262,9 @@ def main():
             exit_sensor_baseline = {cfg['exit_sensor_baseline']}
         '''
     )
-    user_reply = input(f'Would you like to calibrate the sensors? (y/n)').strip().lower()
+    user_reply = input(f'Would you like to calibrate the sensors? (y/n)\n').strip().lower()
     while user_reply not in ['y', 'yes', 'n', 'no']:
-        user_reply = input('Please enter y or n. Press Ctrl+C to exit.').strip().lower()
+        user_reply = input('Please enter y or n. Press Ctrl+C to exit.\n').strip().lower()
     if user_reply in ['y', 'yes']:
         min_tdt, max_tdt = set_tdt_values(entry_sensor=entry_sensor, exit_sensor=exit_sensor)
         entry_sensor_baseline, exit_sensor_baseline = set_baseline_values(entry_sensor=entry_sensor, exit_sensor=exit_sensor)
