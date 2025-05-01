@@ -1,0 +1,13 @@
+{
+    "entry_sensor_address": 42,
+    "exit_sensor_address": 43,
+    "poll_interval": 0.03,
+    "event_timeout": 1.5,
+    "reset_time": 0.4,
+    "min_tdt": 8000,
+    "max_tdt": 8000,
+    "entry_sensor_baseline": 8000,
+    "exit_sensor_baseline": 8000,
+    "logs_dir": "logs",
+    "file_name_format": "{date}_foot_traffic.csv"
+}
