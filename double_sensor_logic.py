@@ -211,23 +211,6 @@ def main():
     """
         Main Loop
     """
-    # Prepare daily log file
-    ny_tz = ZoneInfo('America/New_York')  # we want to specify eastern time for data logging
-    current_datetime = datetime.now(ny_tz)  # This is the unified datetime in Eastern Time.
-    current_date = current_datetime.strftime('%B_%d_%Y') # ex: April_30_2025
-    file_name = file_name_format.format(date=current_date)
-
-    # Create logs directory if it doesn't already exist
-    os.makedirs(logs_dir, exist_ok=True)
-
-    # Check if the daily log already exists, if not, create one with headers
-    daily_log_path = os.path.join(logs_dir, file_name)
-    file_exists = os.path.isfile(daily_log_path)
-    with open(daily_log_path, 'a', newline='') as daily_log_file:
-        csv_writer = csv.writer(daily_log_file)
-        if not file_exists:
-            csv_writer.writerow(['date', 'time', 'entry_count', 'exit_count'])
-
     # Load parameters from config file and prompt user to change any if needed
     cfg = load_config()
     real_time_config(cfg)
@@ -294,6 +277,23 @@ def main():
     elif user_reply in ['n', 'no']:
         print('Sensor calibration skipped.')
 
+    # Prepare daily log file
+    ny_tz = ZoneInfo('America/New_York')  # we want to specify eastern time for data logging
+    current_datetime = datetime.now(ny_tz)  # This is the unified datetime in Eastern Time.
+    current_date = current_datetime.strftime('%B_%d_%Y') # ex: April_30_2025
+    file_name = file_name_format.format(date=current_date)
+
+    # Create logs directory if it doesn't already exist
+    os.makedirs(logs_dir, exist_ok=True)
+
+    # Check if the daily log already exists, if not, create one with headers
+    daily_log_path = os.path.join(logs_dir, file_name)
+    file_exists = os.path.isfile(daily_log_path)
+    with open(daily_log_path, 'a', newline='') as daily_log_file:
+        csv_writer = csv.writer(daily_log_file)
+        if not file_exists:
+            csv_writer.writerow(['date', 'time', 'entry_count', 'exit_count'])
+    
     # Initialize state and counters
     state = 'idle'
     state_start_time = None
