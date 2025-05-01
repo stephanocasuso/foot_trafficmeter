@@ -1,11 +1,3 @@
-import time
-import csv
-from datetime import datetime
-import board
-import busio
-import adafruit_vl53l0x
-import os
-from zoneinfo import ZoneInfo
 
 """
     Sensor Logic
@@ -33,6 +25,15 @@ will increase the "person_leaves" count by 1.
     two or more people walking in in quick succession
 
 """
+
+import time
+import csv
+from datetime import datetime
+import board
+import busio
+import adafruit_vl53l0x
+import os
+from zoneinfo import ZoneInfo
 
 # Baseline distance (with no one in front of the sensor), in milimeters.
 # Sensor reads 805mm - 830mm with no obstructions, so we'll go with 800mm
@@ -62,7 +63,7 @@ def log_event(event):
     filename = get_log_filename()
     ny_tz = ZoneInfo('America/New_York')  # we want to specify eastern time for data logging
     current_datetime = datetime.now(ny_tz)  # This is the unified datetime in Eastern Time.
-    current_date = current_datetime.strftime('%Y-%m-%d')
+    current_date = current_datetime.strftime('%B_%d_%Y')
     current_time = current_datetime.strftime('%H:%M:%S')
     
     # appends a new entry to the daily log depending on the event type
@@ -155,7 +156,7 @@ def main():
 
     poll_interval = 0.01  # Time between sensor polls (in seconds)
 
-    print('Starting sensor monitoring. Press cmd+z to exit...')
+    print('Starting sensor monitoring. Press Ctrl+C to exit...')
     try:
         while True:
             current_distance = read_distance()

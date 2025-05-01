@@ -1,3 +1,15 @@
+
+"""
+    Setting Sensor Addresses
+    ~~~~~~~~~~~~~~~~~~~~~~~~
+
+- The VL53L0X sensors only keep their I2C addresses until the Pi is powered off--resetting
+them back to their default address of 0x29.
+Due to this, their address must be set to unique values every time the Pi is powered on.
+
+- This code will eventually be embedded into the final script
+"""
+
 import time
 import board, busio, digitalio
 from adafruit_vl53l0x import VL53L0X
