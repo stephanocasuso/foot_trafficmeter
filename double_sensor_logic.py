@@ -219,8 +219,8 @@ def main():
     cfg = load_config()
     poll_interval          = cfg['poll_interval']
     event_timeout          = cfg['event_timeout']
-    reset_time             = cfg['reset_time']
-    entry_sensor_address   = cfg['entry_sensor_address']
+    reset_time             = int(cfg['reset_time'])
+    entry_sensor_address   = int(cfg['entry_sensor_address'])
     exit_sensor_address    = cfg['exit_sensor_address']
     logs_dir               = cfg['logs_dir']
     file_name_format       = cfg['file_name_format']
