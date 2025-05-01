@@ -219,14 +219,13 @@ def main():
     cfg = load_config()
     poll_interval          = cfg['poll_interval']
     event_timeout          = cfg['event_timeout']
-    reset_time             = int(cfg['reset_time'])
-    entry_sensor_address   = int(cfg['entry_sensor_address'])
+    reset_time             = cfg['reset_time']
+    entry_sensor_address   = cfg['entry_sensor_address']
     exit_sensor_address    = cfg['exit_sensor_address']
     logs_dir               = cfg['logs_dir']
     file_name_format       = cfg['file_name_format']
 
-    # Initialize I2C bus and sensors SXHUT pins
-    i2c_bus = busio.I2C(board.SCL, board.SDA)
+    # Initialize sensors SXHUT pins
     sh1 = digitalio.DigitalInOut(board.D4)
     sh2 = digitalio.DigitalInOut(board.D5)
     sh1.direction = sh2.direction = digitalio.Direction.OUTPUT
@@ -236,6 +235,9 @@ def main():
     sh2.value = False
     time.sleep(0.1) # 100ms delay allows for pin firmware to catch up
 
+    # Initializing I2C Bus
+    i2c_bus = busio.I2C(board.SCL, board.SDA)
+    
     # Boot up sensor 1, entry sensor, set to address specified
     sh1.value = True
     time.sleep(0.1)
