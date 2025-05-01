@@ -281,7 +281,7 @@ def main():
         cfg['entry_sensor_baseline'] = entry_sensor_baseline
         cfg['exit_sensor_baseline'] = exit_sensor_baseline
         save_config(cfg)
-        load_config(cfg)
+        cfg = load_config()
         
         print('Sensors calibrated.')
     elif user_reply in ['n', 'no']:
