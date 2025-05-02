@@ -371,7 +371,7 @@ def main():
             # Detecting day rollover
             current_date = datetime.now(ny_tz).strftime('%B_%d_%Y') # ex: April_30_2025 in unified Eastern Time
             # If in a new day, then email the daily logs
-            if current_date != date_bookmark:
+            if current_date != date_bookmark and os.path.isfile(daily_log_path):
                 # Email yesterday's log
                 send_email(daily_log_path)
             # Check if the daily log already exists, if not, create one with headers
