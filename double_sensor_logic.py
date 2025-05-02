@@ -52,6 +52,23 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 import board, busio, digitalio
 from adafruit_vl53l0x import VL53L0X 
+import argparse
+
+# Set up debug functions
+DEBUG = False
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-d', '--debug',
+        action='store_true',
+        help='Enable debug output'
+    )
+    return parser.parse_args()
+
+def debug_print(*args, **kwargs):
+    # Print only when DEBUG is True
+    if DEBUG:
+        print(*args, **kwargs)
 
 # Path to JSON config (assuming default dir)
 config_file = os.path.join(os.path.dirname(__file__), 'sensor_config.json')
@@ -217,6 +234,11 @@ def main():
     """
         Main Loop
     """
+    # Check if in DEBUG mode
+    global DEBUG
+    args = parse_args()
+    DEBUG = args.debug
+
     # Load parameters from config file and prompt user to change any if needed
     cfg = load_config()
     real_time_config(cfg)
@@ -310,27 +332,28 @@ def main():
         if not file_exists:
             csv_writer.writerow(['date', 'time', 'entry_count', 'exit_count'])
     
-    # Initialize state and counters
+    # Initialize state
     state = 'idle'
-    state_start_time = None
 
     print('Starting trafficmeter. Press Ctrl+C to stop.')
 
     try:
         while True:
             entry_sensor_reading = entry_sensor.range
+            debug_print('Entry reading: ', entry_sensor_reading)
             exit_sensor_reading = exit_sensor.range
+            debug_print('Exit reading: ', exit_sensor_reading)
             current_time = datetime.now().strftime('%H:%M:%S')
 
             # Determines which sensor was activated first
             if state == 'idle':
                 if (min_tdt <= entry_sensor_reading <= max_tdt):
                     state = 'maybe_entry'
-                    state_start_time = current_time
+                    debug_print('Entered "maybe_entry" state. entry_sensor_reading: ', entry_sensor_reading, ' at ', current_time)
                     timeout_time = datetime.now() + timedelta(seconds=event_timeout)
                 elif (min_tdt <= exit_sensor_reading <= max_tdt):
                     state = 'maybe_exit'
-                    state_start_time = current_time
+                    debug_print('Entered "maybe_exit" state. entry_sensor_reading: ', exit_sensor_reading, ' at ', current_time)
                     timeout_time = datetime.now() + timedelta(seconds=event_timeout)
 
             if state == 'maybe_entry':
@@ -340,6 +363,7 @@ def main():
                     exit_sensor_reading = exit_sensor.range
                     # if they walk thru the second sensor, then we're sure they've entered the store
                     if (min_tdt <= exit_sensor_reading <= max_tdt):
+                        debug_print('In maybe_entry state, exit_sensor detected something in TDT reading: ', exit_sensor_reading)
                         with open(daily_log_path, 'a', newline='') as daily_log_file:
                             csv_writer = csv.writer(daily_log_file)
                             csv_writer.writerow([current_date, current_time, 1, 0])
@@ -360,6 +384,7 @@ def main():
                     exit_sensor_reading = exit_sensor.range
                     # if they walk thru the entry sensor, then we're sure they've walked out the store
                     if (min_tdt <= entry_sensor_reading <= max_tdt):
+                        debug_print('In maybe_exit state, entry_sensor detected something in TDT reading: ', entry_sensor_reading)
                         with open(daily_log_path, 'a', newline='') as daily_log_file:
                             csv_writer = csv.writer(daily_log_file)
                             csv_writer.writerow([current_date, current_time, 0, 1])
