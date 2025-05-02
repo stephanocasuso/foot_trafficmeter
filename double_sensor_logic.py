@@ -457,5 +457,9 @@ def main():
     except KeyboardInterrupt:
         print('\nLogger stopped by user')
 
+    if DEBUG:
+        print('Emailing daily log.')
+        send_email(daily_log_path)
+
 if __name__ == '__main__':
     main()
