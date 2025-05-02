@@ -380,8 +380,8 @@ def main():
             file_exists = os.path.isfile(daily_log_path)
             # Create new log if it doesn't already exist
             if not file_exists:
-                csv_writer = csv.writer(daily_log_file)
                 with open(daily_log_path, 'a', newline='') as daily_log_file:
+                    csv_writer = csv.writer(daily_log_file)
                     csv_writer.writerow(['date', 'time', 'entry_count', 'exit_count'])
 
             # Initialize sensor readings            
