@@ -53,6 +53,9 @@ from zoneinfo import ZoneInfo
 import board, busio, digitalio
 from adafruit_vl53l0x import VL53L0X 
 import argparse
+from email.message import EmailMessage
+import smtplib
+from dotenv import load_dotenv
 
 # Set up debug functions
 DEBUG = False
@@ -230,15 +233,51 @@ def set_baseline_values(entry_sensor, exit_sensor):
     print(f'\tBaseline distances:\nEntrySensor = {entry_sensor_baseline}mm\nExitSensor = {exit_sensor_baseline}mm')
     return entry_sensor_baseline, exit_sensor_baseline
 
+# Load env vars
+load_dotenv()
+def send_email(daily_log_path):
+    # Load email credentials from environment
+    smtp_server = os.getenv('SMTP_SERVER')
+    smtp_port = int(os.getenv('SMTP_PORT', '587'))
+    username = os.getenv('EMAIL_USERNAME')
+    password = os.getenv('EMAIL_PASSWORD')
+    to_address = os.getenv('EMAIL_TO', username)
+    from_address = os.getenv('EMAIL_FROM', username)
+    if not all((smtp_server, username, password, to_address)):
+        print('Email credentials not fully set, skipping email.')
+        return
+    try:
+        msg = EmailMessage()
+        msg['Subject'] = f'Foot Traffic Log for {datetime.now():%Y-%m-%d}'
+        msg['From'] = from_address
+        msg['To'] = to_address
+        msg.set_content('Attached is the foot traffic CSV for the previous day.')
+
+        with open(daily_log_path, 'rb') as f:
+            data = f.read()
+        msg.add_attachment(data,
+                           maintype='text',
+                           subtype='csv',
+                           filename=os.path.basename(daily_log_path))
+
+        with smtplib.SMTP(smtp_server, smtp_port) as smtp:
+            smtp.ehlo()
+            smtp.starttls()
+            smtp.login(username, password)
+            smtp.send_message(msg)
+        print(f'Email sent: {os.path.basename(daily_log_path)}')
+    except Exception as e:
+        print(f'Error sending email: {e}')
+
 def main():
-    """
-        Main Loop
-    """
     # Check if in DEBUG mode
     global DEBUG
     args = parse_args()
     DEBUG = args.debug
     debug_print('Launched in debug mode.')
+
+    # Set timezone
+    ny_tz = ZoneInfo('America/New_York')  # we want to specify eastern time for data logging
 
     # Load parameters from config file and prompt user to change any if needed
     cfg = load_config()
@@ -305,8 +344,8 @@ def main():
         cfg['exit_sensor_baseline'] = exit_sensor_baseline
         save_config(cfg)
         cfg = load_config()
-        
         print('Sensors calibrated.')
+
     elif user_reply in ['n', 'no']:
         print('Sensor calibration skipped.')
 
@@ -315,35 +354,43 @@ def main():
     max_tdt = cfg['max_tdt']
     entry_sensor_baseline = cfg['entry_sensor_baseline']
     exit_sensor_baseline = cfg['exit_sensor_baseline']
-    
-    # Prepare daily log file
-    ny_tz = ZoneInfo('America/New_York')  # we want to specify eastern time for data logging
-    current_datetime = datetime.now(ny_tz)  # This is the unified datetime in Eastern Time.
-    current_date = current_datetime.strftime('%B_%d_%Y') # ex: April_30_2025
-    file_name = file_name_format.format(date=current_date)
 
+    # Initialize state
+    state = 'idle'
+    date_bookmark = datetime.now(ny_tz).strftime('%B_%d_%Y')
     # Create logs directory if it doesn't already exist
     os.makedirs(logs_dir, exist_ok=True)
 
-    # Check if the daily log already exists, if not, create one with headers
-    daily_log_path = os.path.join(logs_dir, file_name)
-    file_exists = os.path.isfile(daily_log_path)
-    with open(daily_log_path, 'a', newline='') as daily_log_file:
-        csv_writer = csv.writer(daily_log_file)
-        if not file_exists:
-            csv_writer.writerow(['date', 'time', 'entry_count', 'exit_count'])
-    
-    # Initialize state
-    state = 'idle'
-
     print('Starting trafficmeter. Press Ctrl+C to stop.')
 
+    """
+        Main Loop
+    """
     try:
         while True:
+            # Detecting day rollover
+            current_date = datetime.now(ny_tz).strftime('%B_%d_%Y') # ex: April_30_2025 in unified Eastern Time
+            # If in a new day, then email the daily logs
+            if current_date != date_bookmark:
+                # Email yesterday's log
+                send_email(daily_log_path)
+            # Check if the daily log already exists, if not, create one with headers
+            file_name = file_name_format.format(date=current_date)
+            daily_log_path = os.path.join(logs_dir, file_name)
+            file_exists = os.path.isfile(daily_log_path)
+            # Create new log if it doesn't already exist
+            if not file_exists:
+                csv_writer = csv.writer(daily_log_file)
+                with open(daily_log_path, 'a', newline='') as daily_log_file:
+                    csv_writer.writerow(['date', 'time', 'entry_count', 'exit_count'])
+
+            # Initialize sensor readings            
             entry_sensor_reading = entry_sensor.range
             debug_print('Entry reading: ', entry_sensor_reading)
             exit_sensor_reading = exit_sensor.range
             debug_print('Exit reading: ', exit_sensor_reading)
+
+            # Get current time
             current_time = datetime.now().strftime('%H:%M:%S')
 
             # Determines which sensor was activated first
@@ -379,7 +426,7 @@ def main():
                         debug_print('Time is ', datetime.now())
                         if entry_sensor_reading > max_tdt and exit_sensor_reading > max_tdt:
                             # they've changed their minds and walked out
-                            debug_print('Event imed out.')
+                            debug_print('Event timed out.')
                             state = 'idle'
 
             elif state == 'maybe_exit':
@@ -402,7 +449,7 @@ def main():
                         debug_print('Time is ', datetime.now())
                         if entry_sensor_reading > max_tdt and exit_sensor_reading > max_tdt:
                             # they've changed their minds and walked out
-                            debug_print('Event imed out.')
+                            debug_print('Event timed out.')
                             state = 'idle'
 
             time.sleep(poll_interval)
