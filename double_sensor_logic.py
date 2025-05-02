@@ -60,11 +60,18 @@ from dotenv import load_dotenv
 # Set up debug functions
 DEBUG = False
 def parse_args():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description='Foot TrafficMeter - run normally for system services or with --calibrate for setup. Use -d/--debug for debug mode.'
+    )
     parser.add_argument(
         '-d', '--debug',
         action='store_true',
         help='Enable debug output'
+    )
+    parser.add_argument(
+        '--calibrate',
+        action='store_true',
+        help='Run interactive calibration'
     )
     return parser.parse_args()
 
@@ -279,9 +286,10 @@ def main():
     # Set timezone
     ny_tz = ZoneInfo('America/New_York')  # we want to specify eastern time for data logging
 
-    # Load parameters from config file and prompt user to change any if needed
-    cfg = load_config()
-    real_time_config(cfg)
+    # Load parameters from config file and prompt user to change any if requested
+    if args.calibrate:
+        cfg = load_config()
+        real_time_config(cfg)
 
     # Reload config file and load parameters in case user changed any
     cfg = load_config()
@@ -321,33 +329,34 @@ def main():
     print(f'Exit sensor now at address {exit_sensor_address}')
 
     # Optional sensor calibration for baselines and TDT values
-    print(
-        f'''
-            Current sensor values:
-            min_tdt = {cfg['min_tdt']}
-            max_tdt = {cfg['max_tdt']}
-            entry_sensor_baseline = {cfg['entry_sensor_baseline']}
-            exit_sensor_baseline = {cfg['exit_sensor_baseline']}
-        '''
-    )
-    user_reply = input(f'Would you like to calibrate the sensors? (y/n)\n').strip().lower()
-    while user_reply not in ['y', 'yes', 'n', 'no']:
-        user_reply = input('Please enter y or n. Press Ctrl+C to exit.\n').strip().lower()
-    if user_reply in ['y', 'yes']:
-        min_tdt, max_tdt = set_tdt_values(entry_sensor=entry_sensor, exit_sensor=exit_sensor)
-        entry_sensor_baseline, exit_sensor_baseline = set_baseline_values(entry_sensor=entry_sensor, exit_sensor=exit_sensor)
-        
-        # update config json
-        cfg['min_tdt'] = min_tdt
-        cfg['max_tdt'] = max_tdt
-        cfg['entry_sensor_baseline'] = entry_sensor_baseline
-        cfg['exit_sensor_baseline'] = exit_sensor_baseline
-        save_config(cfg)
-        cfg = load_config()
-        print('Sensors calibrated.')
+    if args.calibrate:
+        print(
+            f'''
+                Current sensor values:
+                min_tdt = {cfg['min_tdt']}
+                max_tdt = {cfg['max_tdt']}
+                entry_sensor_baseline = {cfg['entry_sensor_baseline']}
+                exit_sensor_baseline = {cfg['exit_sensor_baseline']}
+            '''
+        )
+        user_reply = input(f'Would you like to calibrate the sensors? (y/n)\n').strip().lower()
+        while user_reply not in ['y', 'yes', 'n', 'no']:
+            user_reply = input('Please enter y or n. Press Ctrl+C to exit.\n').strip().lower()
+        if user_reply in ['y', 'yes']:
+            min_tdt, max_tdt = set_tdt_values(entry_sensor=entry_sensor, exit_sensor=exit_sensor)
+            entry_sensor_baseline, exit_sensor_baseline = set_baseline_values(entry_sensor=entry_sensor, exit_sensor=exit_sensor)
+            
+            # update config json
+            cfg['min_tdt'] = min_tdt
+            cfg['max_tdt'] = max_tdt
+            cfg['entry_sensor_baseline'] = entry_sensor_baseline
+            cfg['exit_sensor_baseline'] = exit_sensor_baseline
+            save_config(cfg)
+            cfg = load_config()
+            print('Sensors calibrated.')
 
-    elif user_reply in ['n', 'no']:
-        print('Sensor calibration skipped.')
+        elif user_reply in ['n', 'no']:
+            print('Sensor calibration skipped.')
 
     # Load TDT and baseline values from config file
     min_tdt = cfg['min_tdt']
