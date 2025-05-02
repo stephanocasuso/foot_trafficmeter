@@ -238,6 +238,7 @@ def main():
     global DEBUG
     args = parse_args()
     DEBUG = args.debug
+    debug_print('Launched in debug mode.')
 
     # Load parameters from config file and prompt user to change any if needed
     cfg = load_config()
@@ -351,10 +352,12 @@ def main():
                     state = 'maybe_entry'
                     debug_print('Entered "maybe_entry" state. entry_sensor_reading: ', entry_sensor_reading, ' at ', current_time)
                     timeout_time = datetime.now() + timedelta(seconds=event_timeout)
+                    debug_print('Time out time is ', timeout_time)
                 elif (min_tdt <= exit_sensor_reading <= max_tdt):
                     state = 'maybe_exit'
                     debug_print('Entered "maybe_exit" state. entry_sensor_reading: ', exit_sensor_reading, ' at ', current_time)
                     timeout_time = datetime.now() + timedelta(seconds=event_timeout)
+                    debug_print('Time out time is ', timeout_time)
 
             if state == 'maybe_entry':
                 while state == 'maybe_entry': 
@@ -373,8 +376,10 @@ def main():
 
                     # if the sensors timedout and there's nothing in front of them, then reset to idle
                     if (datetime.now() >= timeout_time):
+                        debug_print('Time is ', datetime.now())
                         if entry_sensor_reading == entry_sensor_baseline and exit_sensor_reading == exit_sensor_baseline:
                             # they've changed their minds and walked out
+                            debug_print('Event imed out.')
                             state = 'idle'
 
             elif state == 'maybe_exit':
@@ -394,10 +399,12 @@ def main():
 
                     # if the sensors timedout and there's nothing in front of them, then reset to idle
                     if (datetime.now() >= timeout_time):
+                        debug_print('Time is ', datetime.now())
                         if entry_sensor_reading == entry_sensor_baseline and exit_sensor_reading == exit_sensor_baseline:
                             # they've changed their minds and walked out
+                            debug_print('Event imed out.')
                             state = 'idle'
-
+            
             time.sleep(poll_interval)
 
     except KeyboardInterrupt:
