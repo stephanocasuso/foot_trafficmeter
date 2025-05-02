@@ -343,7 +343,7 @@ def main():
                         with open(daily_log_path, 'a', newline='') as daily_log_file:
                             csv_writer = csv.writer(daily_log_file)
                             csv_writer.writerow([current_date, current_time, 1, 0])
-                        print(f'Entry detected.')
+                        print('Entry detected.')
                         time.sleep(reset_time)
                         state = 'idle'
 
@@ -363,6 +363,7 @@ def main():
                         with open(daily_log_path, 'a', newline='') as daily_log_file:
                             csv_writer = csv.writer(daily_log_file)
                             csv_writer.writerow([current_date, current_time, 0, 1])
+                        print('Exit detected.')
                         time.sleep(reset_time)
                         state = 'idle'
 
