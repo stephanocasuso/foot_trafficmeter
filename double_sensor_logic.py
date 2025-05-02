@@ -377,7 +377,7 @@ def main():
                     # if the sensors timedout and there's nothing in front of them, then reset to idle
                     if (datetime.now() >= timeout_time):
                         debug_print('Time is ', datetime.now())
-                        if entry_sensor_reading == entry_sensor_baseline and exit_sensor_reading == exit_sensor_baseline:
+                        if entry_sensor_reading > max_tdt and exit_sensor_reading > max_tdt:
                             # they've changed their minds and walked out
                             debug_print('Event imed out.')
                             state = 'idle'
@@ -400,11 +400,11 @@ def main():
                     # if the sensors timedout and there's nothing in front of them, then reset to idle
                     if (datetime.now() >= timeout_time):
                         debug_print('Time is ', datetime.now())
-                        if entry_sensor_reading == entry_sensor_baseline and exit_sensor_reading == exit_sensor_baseline:
+                        if entry_sensor_reading > max_tdt and exit_sensor_reading > max_tdt:
                             # they've changed their minds and walked out
                             debug_print('Event imed out.')
                             state = 'idle'
-            
+
             time.sleep(poll_interval)
 
     except KeyboardInterrupt:
