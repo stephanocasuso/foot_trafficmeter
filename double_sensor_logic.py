@@ -382,7 +382,10 @@ def main():
             # If in a new day, then email the daily logs
             if current_date != date_bookmark and os.path.isfile(daily_log_path):
                 # Email yesterday's log
-                send_email(daily_log_path)
+                if DEBUG:
+                    print(f'current_date != date_bookmark.\ncurrent_date={current_date}\tdate_bookmark={date_bookmark}')
+                # send_email(daily_log_path)
+            
             # Check if the daily log already exists, if not, create one with headers
             file_name = file_name_format.format(date=current_date)
             daily_log_path = os.path.join(logs_dir, file_name)
@@ -468,7 +471,7 @@ def main():
 
     if DEBUG:
         print('Emailing daily log.')
-        send_email(daily_log_path)
+        # send_email(daily_log_path)
 
 if __name__ == '__main__':
     main()
