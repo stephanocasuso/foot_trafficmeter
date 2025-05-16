@@ -385,6 +385,8 @@ def main():
                 if DEBUG:
                     print(f'current_date != date_bookmark.\ncurrent_date={current_date}\tdate_bookmark={date_bookmark}')
                 # send_email(daily_log_path)
+                date_bookmark = datetime.now(ny_tz).strftime('%B_%d_%Y')
+
             
             # Check if the daily log already exists, if not, create one with headers
             file_name = file_name_format.format(date=current_date)
@@ -411,12 +413,12 @@ def main():
                     state = 'maybe_entry'
                     debug_print('Entered "maybe_entry" state. entry_sensor_reading: ', entry_sensor_reading, ' at ', current_time)
                     timeout_time = datetime.now() + timedelta(seconds=event_timeout)
-                    debug_print('Time out time is ', timeout_time)
+                    debug_print(f'Time out time is ', timeout_time, '\tstate = {state}')
                 elif (min_tdt <= exit_sensor_reading <= max_tdt):
                     state = 'maybe_exit'
                     debug_print('Entered "maybe_exit" state. entry_sensor_reading: ', exit_sensor_reading, ' at ', current_time)
                     timeout_time = datetime.now() + timedelta(seconds=event_timeout)
-                    debug_print('Time out time is ', timeout_time)
+                    debug_print(f'Time out time is ', timeout_time, '\tstate = {state}')
 
             if state == 'maybe_entry':
                 while state == 'maybe_entry': 
@@ -435,7 +437,7 @@ def main():
 
                     # if the sensors timedout and there's nothing in front of them, then reset to idle
                     if (datetime.now() >= timeout_time):
-                        debug_print('Time is ', datetime.now())
+                        debug_print(f'Time is ', datetime.now(), '\tstate = {state}')
                         if entry_sensor_reading > max_tdt and exit_sensor_reading > max_tdt:
                             # they've changed their minds and walked out
                             debug_print('Event timed out.')
@@ -458,7 +460,7 @@ def main():
 
                     # if the sensors timedout and there's nothing in front of them, then reset to idle
                     if (datetime.now() >= timeout_time):
-                        debug_print('Time is ', datetime.now())
+                        debug_print(f'Time is ', datetime.now(), '\tstate = {state}')
                         if entry_sensor_reading > max_tdt and exit_sensor_reading > max_tdt:
                             # they've changed their minds and walked out
                             debug_print('Event timed out.')
