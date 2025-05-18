@@ -1,6 +1,10 @@
+# jupyter notebook
+testing_notebook.ipynb
+
 # Ignore the virtual environment folder
 venv/
 logs/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
