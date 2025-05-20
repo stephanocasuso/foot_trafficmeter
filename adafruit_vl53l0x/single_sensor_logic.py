@@ -1,6 +1,6 @@
 
 """
-    Sensor Logic
+    Single Sensor Logic
     ~~~~~~~~~~~~
 
 - The sensor will be mounted on the door frame (inside the shop) about 2 ft off the ground 
