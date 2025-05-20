@@ -443,6 +443,9 @@ def main():
                             debug_print('Event timed out.')
                             state = 'idle'
 
+                            # ADD 10 MIN TIMER. IF AFTER 10 MIN THERE STILL NO BASELINE READING THEN 
+                            # ASSUME OBSTRUCTION AND SEND EMAIL
+
             elif state == 'maybe_exit':
                 while state == 'maybe_exit':
                     # if someone is exiting, poll sensors until they walk thru the entry sensor
@@ -465,6 +468,9 @@ def main():
                             # they've changed their minds and walked out
                             debug_print('Event timed out.')
                             state = 'idle'
+
+                            # ADD 10 MIN TIMER. IF AFTER 10 MIN THERE STILL NO BASELINE READING THEN 
+                            # ASSUME OBSTRUCTION AND SEND EMAIL
 
             time.sleep(poll_interval)
 
