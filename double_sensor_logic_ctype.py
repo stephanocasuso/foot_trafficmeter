@@ -50,7 +50,6 @@ They will be used to store daily foot traffic data that can then be analyzed thr
 import time, csv, os, json
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
-import board, busio, digitalio
 from ctypes import CDLL
 vl53 = CDLL('./libvl53.so')
 
@@ -117,8 +116,6 @@ def real_time_config(cfg):
         Configuring Non-Calibration Settings Through prompt_config_values
     """
     # Settings below don't require calibration
-    # removed: sensor address now handled in C
-    # removed: sensor address now handled in C
     prompt_config_values(cfg, 'poll_interval', float)
     prompt_config_values(cfg, 'event_timeout', float)
     prompt_config_values(cfg, 'reset_time', float)
@@ -300,8 +297,6 @@ def main():
     poll_interval          = cfg['poll_interval']
     event_timeout          = cfg['event_timeout']
     reset_time             = cfg['reset_time']
-    # entry_sensor_address   = 0x29  # hardcoded in C layer
-    # exit_sensor_address    = 0x30  # hardcoded in C layer
     logs_dir               = cfg['logs_dir']
     file_name_format       = cfg['file_name_format']
 
