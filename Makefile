@@ -10,4 +10,4 @@ CFLAGS := -Wall -O2 -fPIC
 LDFLAGS := -shared
 
 $(TARGET): $(SRC_FILES)
-    $(CC) $(CFLAGS) $(SRC_FILES) -o $(TARGET) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(SRC_FILES) -o $(TARGET) $(LDFLAGS)
