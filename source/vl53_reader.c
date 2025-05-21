@@ -14,7 +14,7 @@ static VL53L0X_Dev_t exit_sensor  = { .I2cDevAddr = EXIT_SENSOR_ADDR };
 static VL53L0X_Dev_t* sensors[2] = { &entry_sensor, &exit_sensor };
 
 int init_sensor(VL53L0X_Dev_t* dev) {
-    VL53L0X_DeviceInfo info;
+    VL53L0X_DeviceInfo_t info;
     int status;
 
     dev->comms_type = 1; // I2C
