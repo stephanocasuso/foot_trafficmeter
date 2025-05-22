@@ -1,21 +1,15 @@
+# Makefile for building libvl53.so from all SDK source files
 
-SRC_DIR := source
-TARGET := libvl53.so
+CC = gcc
+CFLAGS = -Wall -O2 -fPIC
+INCLUDES = -Isource
+SRCS = $(wildcard source/*.c)
+OUT = libvl53.so
 
-SRC_FILES := \
-	$(SRC_DIR)/vl53_reader.c \
-	$(SRC_DIR)/vl53l0x_api.c \
-	$(SRC_DIR)/vl53l0x_platform.c
+all: $(OUT)
 
-# Include additional headers from source dir
-INCLUDES := -I$(SRC_DIR)
-
-CC := gcc
-CFLAGS := -Wall -O2 -fPIC $(INCLUDES)
-LDFLAGS := -shared
-
-$(TARGET): $(SRC_FILES)
-	$(CC) $(CFLAGS) $(SRC_FILES) -o $(TARGET) $(LDFLAGS)
+$(OUT): $(SRCS)
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -shared
 
 clean:
-	rm -f $(TARGET)
+	rm -f $(OUT)
