@@ -1,4 +1,4 @@
-# Makefile for building libvl53.so from ST VL53L0X SDK + custom wrapper
+# Makefile for building libvl53.so on Raspberry Pi using ST VL53L0X SDK
 
 CC = gcc
 CFLAGS = -Wall -O2 -fPIC
@@ -12,7 +12,7 @@ SRCS = \
     source/vl53l0x_api_core.c \
     source/vl53l0x_api_ranging.c \
     source/vl53l0x_api_strings.c \
-    source/vl53l0x_platform.c
+    source/vl53l0x_platform.c  # includes VL53L0X_PollingDelay
 
 all: $(OUT)
 
