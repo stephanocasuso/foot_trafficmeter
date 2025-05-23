@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #define ENTRY_SENSOR_ADDR 0x29
 #define EXIT_SENSOR_ADDR  0x30
@@ -68,4 +69,20 @@ int read_distance(int sensor_id) {
     }
 
     return data.RangeMilliMeter;
+}
+
+int VL53L0X_init(uint8_t i2c_addr) {
+    VL53L0X_Dev_t* dev = (VL53L0X_Dev_t*)malloc(sizeof(VL53L0X_Dev_t));
+    if (!dev) return 0;
+
+    dev->I2cDevAddr = i2c_addr;
+    dev->comms_type = 1;
+    dev->comms_speed_khz = 400;
+
+    if (init_sensor(dev) != 0) {
+        free(dev);
+        return 0;
+    }
+
+    return (intptr_t)dev;
 }
