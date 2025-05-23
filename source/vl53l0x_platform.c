@@ -89,6 +89,8 @@ VL53L0X_Error VL53L0X_RdDWord(VL53L0X_DEV Dev, uint8_t index, uint32_t *data) {
     return status ? VL53L0X_ERROR_CONTROL_INTERFACE : VL53L0X_ERROR_NONE;
 }
 
-void VL53L0X_PollingDelay(void) {
-    usleep(1000);  // Sleep 1ms between polling attempts
+#include <unistd.h>  // for usleep
+VL53L0X_Error VL53L0X_PollingDelay(VL53L0X_DEV Dev) {
+    usleep(1000);  // 1 ms delay
+    return VL53L0X_ERROR_NONE;
 }
