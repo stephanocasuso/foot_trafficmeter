@@ -1,0 +1,11 @@
+{
+    "poll_interval": 0.03,
+    "event_timeout": 3,
+    "reset_time": 1.2,
+    "min_tdt": 8000,
+    "max_tdt": 8000,
+    "entry_sensor_baseline": 8000,
+    "exit_sensor_baseline": 8000,
+    "logs_dir": "logs",
+    "file_name_format": "{date}_foot_traffic.csv"
+}
