@@ -18,7 +18,6 @@
  */
 
 
-#include <windows.h>
 #include <stdio.h>    // sprintf(), vsnprintf(), printf()
 
 #ifdef _MSC_VER
